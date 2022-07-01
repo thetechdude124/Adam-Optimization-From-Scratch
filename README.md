@@ -4,7 +4,7 @@
 
 In recent years, the Adam optimizer has become famous for achieving fast and accurate results when it comes to optimizing complex stochastic loss functions - thanks to its moment estimates (as I'll explain further) and update rule, it is able to more efficiently converge to reliable local (and sometimes global) minima, and has been shown to perform remarkably well on high-dimensional objective functions due to **a very small memory requirement - the optimization method is invariant to gradient scaling and does NOT need to compute higher order derivatives, thus making it more computationally efficient.**
 
-The goal of this project is to 1️⃣ learn how optimization methods work mathematically and their theoretical behaviour (reading and taking notes on the paper + building a strong foundation of statistics), 2️⃣ apply this theoretical knowledge by constructing said optimizer from scratch in PyTorch (found in CustomAdam.py), and 3️⃣ test this custom implementation on six 3D functions against optimizers to determine performance. The objective of this last step was to see if I could **leverage the mathematical knowledge gained in a) to improve the optimizer. (Optimizer_Experimentation.ipynb).** 
+The goal of this project is to 1️⃣ learn how optimization methods work mathematically and their theoretical behaviour (reading and taking notes on the paper + building a strong foundation of statistics), 2️⃣ apply this theoretical knowledge by constructing said optimizer from scratch in PyTorch (found in `CustomAdam.py`), and 3️⃣ test this custom implementation on six 3D functions against optimizers to determine performance. The objective of this last step was to see if I could **leverage the mathematical knowledge gained in a) to improve the optimizer. (Optimizer_Experimentation.ipynb).** 
 
 This project was started in an effort to replicate the original 2017 paper! Check it out for more information and a more detailed explanation of how everything works under the hood - https://arxiv.org/pdf/1412.6980.pdf.
 
@@ -26,9 +26,9 @@ How does Adam fix this? *By using first and second moment ESTIMATES to update pa
 
 - **First Moment:** this is given by $E[X]$, and simply yields the mean value of the given data.
 
-- **Centered and Uncentered Moments:** the formula given for the expected value involves an integral; but, we can **APPROXIMATE THIS MOMENT WITH A SUM**, much like any integral can be approximated via a left or right Riemann sum. In that case, we simply do $prob*var + prob*var...$ for all the different probabilities and variables. This is known as the **uncentered** or raw moment. If we subtract the *mean from each and every variable value then we get the CENTERED moment.* Mathematically, it a centered moment would be yielded by $prob * (var - mean) + prob * (var - mean)...$ for all $n$ variables.
+- **Centered and Uncentered Moments:** the formula given for the expected value involves an integral; but, we can **APPROXIMATE THIS MOMENT WITH A SUM**, much like any integral can be approximated via a left or right Riemann sum. In that case, we simply do $prob * var + prob * var...$ for all the different probabilities and variables. This is known as the **uncentered** or raw moment. If we subtract the *mean from each and every variable value then we get the CENTERED moment.* Mathematically, it a centered moment would be yielded by $prob * (var - mean) + prob * (var - mean)...$ for all $n$ variables.
 
-- **Second Moment (UNCENTERED AND CENTERED):** The second moment is the same as the first moment, except for the fact that **every x term is SQUARED.** So, the actual formula for a moment is **$m_n=E[X^n]**, where *n* refers to the given moment (first, second, etc.). The **second CENTERED MOMENT is the variance, whereas the second UNCENTERED moment is the uncentered variance or SQUARED DISTANCE FROM THE ORIGIN.** 
+- **Second Moment (UNCENTERED AND CENTERED):** The second moment is the same as the first moment, except for the fact that **every x term is SQUARED.** So, the actual formula for a moment is **$m_n=E[X^n]$**, where $n$ refers to the given moment (first, second, etc.). The **second CENTERED MOMENT is the variance, whereas the second UNCENTERED moment is the uncentered variance or SQUARED DISTANCE FROM THE ORIGIN.** 
 
 *P.S. - while there isn't enough room here to give full proofs of all of this, I've broken down the math for myself as I was learning it all in one spot https://crysta.notion.site/ADAM-A-METHOD-FOR-STOCHASTIC-OPTIMIZATION-758a789b929842d4ac01281e4366f9f5; check it out and scroll to the "Key Terms" section for a more detailed set of definitions*.)
 
@@ -40,13 +40,13 @@ By using these moment estimates, Adam is able to circumvent the high compute and
 
 (Repeat the following steps until converged)
 
-2. **Increment timestep** ($t = t+1).
+2. **Increment timestep** ($t = t+1$).
 
 3. **Obtain the gradients: $g_t = ∇f_t(θ_{t-1})$**, where $f_t$ is the loss function, $θ$ is the parameter vector and $∇$ represents the act of taking the gradients (partial derivatives as we have more than one parameter; the derivative of a vector is known as a partial derivative) of the specified cost function. 
 
-4. **Use a bias to estimate the first moment across all the gradients - $m_t = B_1 x m_{t-1} + (1 - B_1) x g_t$.** When optimizing, we want to limit the influence of outliers and one-off exploding gradients as much as possible - if the new gradient vector is substantially different than the existing ones, then we want to take the past vectors into consideration so as not to make disastrous, radically different updates. So, we add a **bias term to circumvent this - this bias decays exponentially as we progress**, thanks to the next couple of steps.
+4. **Use a bias to estimate the first moment across all the gradients: $m_t = B_1 x m_{t-1} + (1 - B_1) x g_t$.** When optimizing, we want to limit the influence of outliers and one-off exploding gradients as much as possible - if the new gradient vector is substantially different than the existing ones, then we want to take the past vectors into consideration so as not to make disastrous, radically different updates. So, we add a **bias term to circumvent this - this bias decays exponentially as we progress**, thanks to the next couple of steps.
 
-5. **Estimate the second uncentered moment.** Same philosophy as the above step, but this time $v_t$ is being updated and we are taking the **SQUARE OF THE GRADIENT** since we're computing the estimate of the second raw moment - $v_t = B_2 x (v_{t-1}) + (1 - B_2) * g_t^2$.
+5. **Estimate the second uncentered moment.** Same philosophy as the above step, but this time $v_t$ is being updated and we are taking the **SQUARE OF THE GRADIENT** since we're computing the estimate of the second raw moment: $v_t = B_2 * (v_{t-1}) + (1 - B_2) * g_t^2$.
 
     - *Note that this equation is a moment estimate - $B_2$ acts as a probability, and $v_{t-1}$ and $g_t^2$ act as the "random" variables ($P(x)$ and $x$ in the expected value equation)*. The second uncentered moment requires that we *square each X*, which is why $g_t$ is squared.
 
@@ -73,3 +73,21 @@ By using these moment estimates, Adam is able to circumvent the high compute and
 Here's a full picture of all of these steps summarized (as presented in the paper):
 
 <p align = "center"><img src = "./images/ADAM_ALGORITHM.jpg"></img></p>
+
+### **🧪 Method and About This Experiment.**
+
+There are two key components to this repository - the custom implementation of the Adam Optimizer can be found in `CustomAdam.py`, whereas the experimentation process with all other optimizers occurs under Optimizer_Experimentation.ipynb. **Each optimizer is ran for 60k steps for each function** (replicating one full pass through of the MNIST-dataset as performed in the Adam paper).
+
+The experiment setup was made in an effort to determine the performance of the custom Adam implementation against the more commonly used methods. Specifically, the experiment runs CustomAdam, SGD, RMSProp, and AdaGrad on 6 3-Dimensional functions (with each using the same weight initializations between ±1), each of which pose unique challenges.
+
+Here are the six functions used in this experiment, along with a diagram and key challenges. (diagram made in PowerPoint, source for these images and equations https://www.sfu.ca/~ssurjano/optimization.html)
+
+<p align = "center"><img src = "./images/LOSS_FUNCTIONS_DIAGRAM.jpg"></img></p>
+
+There are **two key classes that make this experiment possible** - `LossFunctions`, which consists of one method for each of the above functions (each of these methods computes the listed equation with `torch` operations), and `OptimizerTest`, which tests the given optimizer against the functions specified in `Lossfunctions` and instantiates a separate instance of each optimizer for each experiment to reset the input parameters (each instance of an optimizer should be used to optimize just one function as a best practice to avoid different parameters being used for each test).
+
+**All optimizer points and results are stored inside dictionaries for plotting the end results, as seen in `Optimizer_Experimentation.py`*.
+
+### 🎯 The Results.
+
+### 🔑 Key Learnings.
