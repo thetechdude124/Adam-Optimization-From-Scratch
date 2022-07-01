@@ -90,4 +90,8 @@ There are **two key classes that make this experiment possible** - `LossFunction
 
 ### 🎯 The Results.
 
+Interestingly, the performance of all optimization functions varied wildly across all trials (test was repeated 5+ times to ensure that similar trends were taking place).
+
+
+
 ### 🔑 Key Learnings.
