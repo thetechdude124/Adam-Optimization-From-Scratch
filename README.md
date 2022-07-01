@@ -55,7 +55,7 @@ By using these moment estimates, Adam is able to circumvent the high compute and
 
 7. **Correct the bias introduced in the *second* uncentered moment estimate:** $v_t^{Δ}=v_t/(1-B_2^t)$. Exact same principle as step #6, but applied to $v_t$.
 
-8. **Update the parameters** $θ$: $θ_t=θ_{t-1} - {α}{√(v^Δ_t)+ε}* m^Δ_t$. Let's break this down:
+8. **Update the parameters:** $θ_t=θ_{t-1} - \frac{α}{√(v^Δ_t)+ε} * m^Δ_t$. Let's break this down:
     - $α$ represents the stepsize. This, along with $\frac{a(1-B_1)}{√(1-B_2)}$, serve as the upper bound for the effective step that the optimizer can take. For more depth on this, checkout the "Information about the algorithm" section in my Notion link above, or the original paper.
 
     - $m_t^{Δ}$ represents the first moment bias-corrected moment estimate computed in step 7.
