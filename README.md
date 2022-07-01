@@ -42,7 +42,7 @@ By using these moment estimates, Adam is able to circumvent the high compute and
 
 2. **Increment timestep** ($t = t+1$).
 
-3. **Obtain the gradients:** $g_t = ∇f_t(θ_{t-1})$ where f_t is the loss function, $θ$ is the parameter vector and $∇$ represents the act of taking the gradients (partial derivatives as we have more than one parameter; the derivative of a vector is known as a partial derivative) of the specified cost function. 
+3. **Obtain the gradients:** $g_t = ∇f_t(θ_{t-1})$ where f_t is the loss function, θ is the parameter vector and ∇ represents the act of taking the gradients (partial derivatives as we have more than one parameter; the derivative of a vector is known as a partial derivative) of the specified cost function. 
 
 4. **Use a bias to estimate the first moment across all the gradients:** $m_t = B_1 * m_{t-1} + (1 - B_1) * g_t$. When optimizing, we want to limit the influence of outliers and one-off exploding gradients as much as possible - if the new gradient vector is substantially different than the existing ones, then we want to take the past vectors into consideration so as not to make disastrous, radically different updates. So, we add a **bias term to circumvent this - this bias decays exponentially as we progress**, thanks to the next couple of steps.
 
