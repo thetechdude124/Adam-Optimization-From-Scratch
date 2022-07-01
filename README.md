@@ -88,6 +88,6 @@ There are **two key classes that make this experiment possible** - `LossFunction
 
 **All optimizer points and results are stored inside dictionaries for plotting the end results, as seen in `Optimizer_Experimentation.py`*.
 
-### 🎯 The Results.
+### **🎯 The Results.**
 
-### 🔑 Key Learnings.
+### **🔑 Key Learnings.**
