@@ -42,7 +42,7 @@ By using these moment estimates, Adam is able to circumvent the high compute and
 
 2. **Increment timestep** ($t = t+1$).
 
-3. **Obtain the gradients:** $g_t = ∇f_t(θ_{t-1})$, where $f_t$ is the loss function, $θ$ is the parameter vector and $∇$ represents the act of taking the gradients (partial derivatives as we have more than one parameter; the derivative of a vector is known as a partial derivative) of the specified cost function. 
+3. **Obtain the gradients:** $g_t = ∇f_t(θ_{t-1})$ where f_t is the loss function, θ is the parameter vector and ∇ represents the act of taking the gradients (partial derivatives as we have more than one parameter; the derivative of a vector is known as a partial derivative) of the specified cost function. 
 
 4. **Use a bias to estimate the first moment across all the gradients:** $m_t = B_1 * m_{t-1} + (1 - B_1) * g_t$. When optimizing, we want to limit the influence of outliers and one-off exploding gradients as much as possible - if the new gradient vector is substantially different than the existing ones, then we want to take the past vectors into consideration so as not to make disastrous, radically different updates. So, we add a **bias term to circumvent this - this bias decays exponentially as we progress**, thanks to the next couple of steps.
 
@@ -55,16 +55,16 @@ By using these moment estimates, Adam is able to circumvent the high compute and
 
 7. **Correct the bias introduced in the *second* uncentered moment estimate:** $v_t^{Δ}=v_t/(1-B_2^t)$. Exact same principle as step #6, but applied to $v_t$.
 
-8. **Update the parameters** $θ$: $θ_t=θ_{t-1} - \frac{α}{√(v^Δ_t)+ε}* m^Δ_t$. Let's break this down:
+8. **Update the parameters:** $θ_t=θ_{t-1} - \frac{α}{√(v^Δ_t)+ε} * m^Δ_t$. Let's break this down:
     - $α$ represents the stepsize. This, along with $\frac{a(1-B_1)}{√(1-B_2)}$, serve as the upper bound for the effective step that the optimizer can take. For more depth on this, checkout the "Information about the algorithm" section in my Notion link above, or the original paper.
 
     - $m_t^{Δ}$ represents the first moment bias-corrected moment estimate computed in step 7.
 
     - $v_t^{Δ}$ represents the second uncentered bias-corrected moment estimate computed in step 6.
 
-    - $ε$ is an arbitrary constant (usually 10e-8) added in the denominator to avoid division by zero. We'll be ignoring this, as it's extremely small size makes it effectively irrelevant when taking a step.
+    - $ε$ is an arbitrary constant (usually 10e-8) added in the denominator to avoid division by zero. We'll be ignoring this in the next analyses, as its extremely small size makes it effectively irrelevant when taking a step.
 
-    Why are we multiplying $α$ by $\frac{m^Δ_t}{√(v^Δ_t)}$? Note that the latter is, roughly speaking, the first moment divided by the second moment - the mean divided by the mean distance from the origin. Furthermore,  $v^Δ$ yields the AVERAGE SQUARED DISTANCE from the origin (it would yield avg. sq. distance from the mean if the moment was centered), and thus the square root is needed to yield the raw avg. sq. distance from the origin.
+    Why are we multiplying $α$ with $\frac{m^Δ_t}{√(v^Δ_t)}$? Note that the latter is, roughly speaking, the first moment divided by the second moment - the mean divided by the mean distance from the origin. Furthermore, $v^Δ$ yields the AVERAGE SQUARED DISTANCE from the origin (it would yield avg. sq. distance from the mean if the moment was centered), and thus the square root is needed to yield the raw avg. sq. distance from the origin.
 
     **In the paper, this expression** ($\frac{m^Δ_t}{√(v^Δ_t)}$) **is known as the *signal to noise ratio*.** The idea is that we want to REDUCE the stepsize if we are more unsure of what the ideal step would be - meaning that that the value of the factor that we multiply the stepsize with should be *closer to zero/have a larger denominator* if there is more *variability* across the gradient estimates. More specifically, **if the gradients have more spread w.r.t the origin despite the mean being SMALL (0), then this indicates that there is high degree of uncertainty** - and, as the mean and the spread w.r.t the origin are both the first moment and the second uncentered moment respectively, the SNR will be a much smaller value as the denominator grows larger than the numerator. If both are high, then this means there is a strong signal for an update in a certain direction (**meaning that the SNR should be closer to one and thus allow for a step of the full stepsize**). 
 
@@ -88,7 +88,7 @@ There are **two key classes that make this experiment possible** - `LossFunction
 
 **All optimizer points and results are stored inside dictionaries for plotting the end results, as seen in `Optimizer_Experimentation.py`*.
 
-### 🎯 The Results.
+### **🎯 The Results.**
 
 Interestingly, the performance of all optimization functions varied wildly across all trials (test was repeated 5+ times to ensure that similar trends were taking place).
 
