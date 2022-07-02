@@ -1,22 +1,22 @@
-### **📉ADAM OPTIMIZATION FROM SCRATCH.**
+### **📈ADAM OPTIMIZATION FROM SCRATCH.**
 
 *Purpose: Implementing the ADAM optimizer from the ground up with PyTorch and comparing its performance on 6 3-D objective functions (each progressively more difficult to optimize) against SGD, AdaGrad, and RMSProp.*
 
 In recent years, the Adam optimizer has become famous for achieving fast and accurate results when it comes to optimizing complex stochastic loss functions - thanks to its moment estimates (as I'll explain further) and update rule, it is able to more efficiently converge to reliable local (and sometimes global) minima, and has been shown to perform remarkably well on high-dimensional objective functions due to **a very small memory requirement - the optimization method is invariant to gradient scaling and does NOT need to compute higher order derivatives, thus making it more computationally efficient.**
 
-The goal of this project is to 1️⃣ learn how optimization methods work mathematically and their theoretical behaviour (reading and taking notes on the paper + building a strong foundation of statistics), 2️⃣ apply this theoretical knowledge by constructing said optimizer from scratch in PyTorch (found in `CustomAdam.py`), and 3️⃣ test this custom implementation on six 3D functions against optimizers to determine performance. The objective of this last step was to see if I could **leverage the mathematical knowledge gained in a) to improve the optimizer. (Optimizer_Experimentation.ipynb).** 
+The goal of this project is to 1️⃣ learn how optimization methods work mathematically and their theoretical behaviour (reading and taking notes on the paper + building a strong foundation of statistics), 2️⃣ apply this theoretical knowledge by constructing said optimizer from scratch in PyTorch (found in `CustomAdam.py`), and 3️⃣ test this custom implementation on six 3D functions against optimizers to determine performance. The objective of this last step was to see if I could **leverage the mathematical knowledge gained in a) to improve the optimizer** (found in `Optimizer_Experimentation.ipynb`).
 
 This project was started in an effort to replicate the original 2017 paper! Check it out for more information and a more detailed explanation of how everything works under the hood - https://arxiv.org/pdf/1412.6980.pdf.
 
 ### **➗ How Adam Actually Works - The Math.**
 
-**Fundamentally, the core aspect of ML that allows machine to "learn" is optimization** - taking a differentiable objective (loss) function and attempting to intelligently modify the model's parameters in such a way that it results in a lower (or higher) value of this function. This is done iteratively - the optimization algorithm uses something known as the **gradient** (simply the derivative of the loss function at that point) to determine how best to update all the parameters. Each one of these updates/iterations is known as a **"step"**, and over a large number of steps, the model should ideally **converge to a local minima that offers arbitrarily good parameters.** The *size* of these steps is known as the *stepsize or learning rate*, as we'll go over next.
+**Fundamentally, the core aspect of ML that allows machine to "learn" is optimization** - taking a differentiable objective (loss) function and attempting to intelligently modify the model's parameters in such a way that it results in a lower (or higher) value of this function. This is done iteratively - the optimization algorithm uses something known as the **gradient** (simply the derivative of the loss function at that point) to determine how best to update all the parameters. Each one of these updates/iterations is known as a **"step"**, and over a large number of steps, the model should ideally **converge to a local minima that offers arbitrarily good parameters** for convex problems. The *size* of these steps is known as the *stepsize or learning rate*, as we'll go over next.
 
 Here's a quick GIF using the standard SGD (Stochastic Gradient Descent) Optimization Algorithm (source: https://mlfromscratch.com/optimizers-explained/):
 
 <p align = "center"><img src = "./images/GRADIENT-DESCENT-GIF.gif"></img></p>
 
-**The key disadvantage of this method is that it becomes computationally expensive extremely fast.** The image above showed a model with one parameter being optimized - but, practically, most models have **dozens if not hundreds of thousands of parameters** that must be optimized. In such cases, we have to compute the **nth order derivative of some cost function $Z(θ)$** where $θ$ is a vector of all of these parameters - a task that must be repeated **for each step we take.** This quite evidently slows down the optimization process and drastically increases the compute needed as well.
+**The key disadvantage of this method is that it becomes computationally expensive extremely fast.** The image above showed a model with one parameter being optimized - but, practically, most models have **dozens if not hundreds of thousands of parameters** that must be optimized. In such cases, we have to compute the **nth order derivative of some cost function $Z(θ)$** where $θ$ is a vector of all of these parameters - a task that must be repeated **for each step we take.** This quite evidently slows down the optimization process and drastically increases the compute needed as well. Furthermore, SGD without further parameters such as momentum is known to become trapped in local minima quite easily.
 
 How does Adam fix this? *By using first and second moment ESTIMATES to update parameters rather than the gradient themselves.* 
 
@@ -58,9 +58,9 @@ By using these moment estimates, Adam is able to circumvent the high compute and
 8. **Update the parameters:** $θ_t=θ_{t-1} - \frac{α}{√(v^Δ_t)+ε} * m^Δ_t$. Let's break this down:
     - $α$ represents the stepsize. This, along with $\frac{a(1-B_1)}{√(1-B_2)}$, serve as the upper bound for the effective step that the optimizer can take. For more depth on this, checkout the "Information about the algorithm" section in my Notion link above, or the original paper.
 
-    - $m_t^Δ$ represents the first moment bias-corrected moment estimate computed in step 7.
+    - $m_t^Δ$ represents the first moment bias-corrected moment estimate computed in step 6.
 
-    - $v_t^Δ$ represents the second uncentered bias-corrected moment estimate computed in step 6.
+    - $v_t^Δ$ represents the second uncentered bias-corrected moment estimate computed in step 7.
 
     - $ε$ is an arbitrary constant (usually 10e-8) added in the denominator to avoid division by zero. We'll be ignoring this in the next analyses, as its extremely small size makes it effectively irrelevant when taking a step.
 
@@ -76,9 +76,9 @@ Here's a full picture of all of these steps summarized (as presented in the pape
 
 ### **🧪 Method and About This Experiment.**
 
-There are two key components to this repository - the custom implementation of the Adam Optimizer can be found in `CustomAdam.py`, whereas the experimentation process with all other optimizers occurs under Optimizer_Experimentation.ipynb. **Each optimizer is ran for 60k steps for each function(replicating one full pass through of the MNIST-dataset as performed in the Adam paper).**
+There are two key components to this repository - the custom implementation of the Adam Optimizer can be found in `CustomAdam.py`, whereas the experimentation process with all other optimizers occurs under `Optimizer_Experimentation.ipynb`. **Each optimizer is ran for 60k steps for each function (replicating one full pass through of the MNIST-dataset, one of thousands performed in the Adam paper).**
 
-The experiment setup was made in an effort to determine the performance of the custom Adam implementation against the more commonly used methods. Specifically, the experiment runs CustomAdam, SGD, RMSProp, and AdaGrad on 6 3-Dimensional functions (with each using the same weight initializations between ±1), each of which pose unique challenges.
+The experiment setup was made in an effort to determine the performance of the custom Adam implementation against other commonly used methods. Specifically, the experiment runs CustomAdam, SGD, RMSProp, and AdaGrad on six 3-Dimensional functions (with each using the same weight initializations between ±1), each of which pose unique challenges and test different aspects of optimization (highlighting different strengths and weaknesses of each approach).
 
 Here are the six functions used in this experiment, along with a diagram and key challenges (diagram made in PowerPoint, function diagrams and equations can be found at https://www.sfu.ca/~ssurjano/optimization.html):
 
@@ -96,9 +96,9 @@ Here are the results. Note that **all results are shown in symmetrical logarithm
 
 <p align = "center"><img src = ".\images\OPTIMIZER_COMPARISON_GRAPH.png"></img></p>
 
-Interestingly, the CustomAdam implementation is largely successful in solving virtually all the posed optimization problems. While its speed of optimization tends to be around 10-50 steps later than RMSProp (which seems to have the best performance overall when considering performance across all functions), it appears to be better at avoiding local minima (as given by its non-oscillation and rapid convergence with regards to the Bukin test).
+Interestingly, the CustomAdam implementation is largely successful in solving virtually all the posed optimization problems. While its speed of optimization tends to be around 100-500 steps later than RMSProp (which seems to have the best performance overall when considering performance across all functions), it appears to be marginally better at avoiding local minima (as given by its non-oscillation and rapid convergence with regards to the Bukin test).
 
-Of particular interest are the Bukin and Easom functions. As visible in the function diagrams of the previous section, the Bukin function consists of hundreds and hundreds of local minima arranged in a kind of "ridge" shape - meaning that if an optimizer were to get stuck in one of these local minima, it would (depending on the learning rate) begin rebounding along the edges and generate a rapidly oscillating function. That certainly is one explanation for why both RMSProp and SGD appear to form discrete "chunks" caused by rapid oscillation over 60k steps.
+Of particular interest are the Bukin and Easom function tests. As visible in the function diagrams of the previous section, the Bukin function consists of hundreds and hundreds of local minima arranged in a kind of "ridge" shape - meaning that if an optimizer were to get stuck in one of these local minima, it would (depending on the learning rate) begin rebounding along the edges and generate a rapidly oscillating function. That certainly is one explanation for why both RMSProp and SGD appear to form discrete "chunks" caused by rapid oscillation over 60k steps.
 
 However, that is not the full story - as the scale is logarithmic, it means that the difference between the peak and trough of the RMSProp oscillation is an order of magnitude smaller than the same difference of the SGD oscillation. In other words, **SGD fluctuates between 1 and 100, whereas RMSProp fluctuates between near-zero and 1.** This indicates that **despite having the same general pattern of repeated oscillation, RMSProp was able to find a local minima, whereas SGD was simply unable to converge.** A potential reason for this may be the tendency of SGD to get "trapped" inside local minima - RMSProp introduces exponential decay rates which prevents steps from becoming inconsequential too quickly, a problem that often plagues optimizers by the likes of AdaGrad due to excessive learning rate decay (see the original papers for said optimizers for more information on why exactly this is). Both CustomAdam and AdaGrad were able to converge without any (visible) oscillation. 
 
@@ -111,18 +111,19 @@ While the CustomAdam implementation converged faster in the more complex Bukin f
 All in all, there is certainly tremendous room for further growth and exploration in the performance of these optimizers - in fact, several new optimizers have arisen in recent years to address the aforementioned problems. 
 
 🪜**Next steps involve:**
- - Testing on higher dimensional functions to determine if the theoretical memory benefits of Adam hold up, 
- - Attempting to solve the above problems by creating a new optimizer from scratch, and 
- - Testing said functions on more non-convex functions.
+ - Testing on higher dimensional functions to determine if the theoretical memory benefits of Adam hold true, 
+ - Attempting to solve the above problems by creating a new optimizer from scratch,
+ - Testing said functions on more non-convex functions, and
+ - Using the points dictionary to generate real-time animations of the optimizers as they take steps!
 
-### 🔑 Key Learnings.
+### **🔑 Key Learnings.**
 
 1. 🏛️**The inner workings of optimizers and statistics fundamentals, from both a theoretical and practical perspective.** Reading through the original Adam paper, taking notes, and re-implementing the optimizer combined gave me a stronger intuition about the nature of optimization functions and the mathematics behind parameter tuning than any one of those things could have taught me individually. The theoretical aspect aided in solidifying why it was that Adam actually worked (key proofs and formulas that explained common real-world occurrences), whereas the practical aspect better acquainted me with how libraries such as PyTorch work in the backend (leaf tensors and views) and **important practical considerations when converting a theoretical optimizer into raw flesh and blood.**
 
-2. 📊**Why certain optimizers converge better than others.** As mentioned in the results section, simple things such as exponential decay can drastically influence the ability of optimization methods to converge; and allow more simple optimizers to sometimes perform better than adaptive methods. On the other hand, these same simple optimizers (SGD without momentum in particular) have a greater tendency to get stuck in local minima.  As usual, it appears that **the best solution may lie in ensembles of optimizers as opposed to relying on just one method - combining the pros of each to obtain the best of each world.**
+2. 📊**Why certain optimizers converge better than others.** As mentioned in the results section, simple things such as exponential decay can drastically influence the ability of optimization methods to converge; and allow more simple optimizers to sometimes perform better than adaptive methods. On the other hand, these same simple optimizers (SGD without momentum in particular) have a greater tendency to get stuck in local minima. As usual, it appears that **the best solution may lie in ensembles of optimizers as opposed to relying on just one method - combining the pros of each to obtain the best of each world.**
    
 3. 🧪 **Best practices in terms of validating optimization methods** - or, the importance of using non-convex and local-minima-riddled functions to test optimizers. These types of functions often highlight discrepancies and major faults/weaknesses between various methods and can help open the floor for further analysis (as was the case under the results section).
 
 All things considered, this project 10x-ed my understanding of the mathematics behind machine learning and revealed interesting problems in terms of both tuning hyperparameters and optimizing parameters on high-dimensional functions. Excited to see what comes next!
 
-*Special thanks to Diederik P. Kingma and Jimmy Lei Ba for writing the original paper! Very fascinating read and was a blast to replicate.*
+*Special thanks to Diederik P. Kingma and Jimmy Lei Ba for writing the original paper! Very fascinating read and was a blast to replicate.* 😄
