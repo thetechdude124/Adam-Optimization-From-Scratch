@@ -92,6 +92,37 @@ There are **two key classes that make this experiment possible** - `LossFunction
 
 Interestingly, the performance of all optimization functions varied wildly across all trials (test was repeated 5+ times to ensure that similar trends were taking place).
 
+Here are the results. Note that **all results are shown in symmetrical logarithmic scale.**
 
+<p align = "center"><img src = ".\images\OPTIMIZER_COMPARISON_GRAPH.png"></img></p>
+
+Interestingly, the CustomAdam implementation is largely successful in solving virtually all the posed optimization problems. While its speed of optimization tends to be around 10-50 steps later than RMSProp (which seems to have the best performance overall when considering performance across all functions), it appears to be better at avoiding local minima (as given by its non-oscillation and rapid convergence with regards to the Bukin test).
+
+Of particular interest are the Bukin and Easom functions. As visible in the function diagrams of the previous section, the Bukin function consists of hundreds and hundreds of local minima arranged in a kind of "ridge" shape - meaning that if an optimizer were to get stuck in one of these local minima, it would (depending on the learning rate) begin rebounding along the edges and generate a rapidly oscillating function. That certainly is one explanation for why both RMSProp and SGD appear to form discrete "chunks" caused by rapid oscillation over 60k steps.
+
+However, that is not the full story - as the scale is logarithmic, it means that the difference between the peak and trough of the RMSProp oscillation is an order of magnitude smaller than the same difference of the SGD oscillation. In other words, **SGD fluctuates between 1 and 100, whereas RMSProp fluctuates between near-zero and 1.** This indicates that **despite having the same general pattern of repeated oscillation, RMSProp was able to find a local minima, whereas SGD was simply unable to converge.** A potential reason for this may be the tendency of SGD to get "trapped" inside local minima - RMSProp introduces exponential decay rates which prevents steps from becoming inconsequential too quickly, a problem that often plagues optimizers by the likes of AdaGrad due to excessive learning rate decay (see the original papers for said optimizers for more information on why exactly this is). Both CustomAdam and AdaGrad were able to converge without any (visible) oscillation. 
+
+Regarding the Easom function, **no optimizer except AdaGrad** was able to converge here - given that the Easom function is effectively uniform with the exception of one gargantuan trough, this was to be expected. AdaGrad in particular aims to update sparse features more often than already updated ones; helping to strengthen the probability that the step taken was the most optimal not just regarding the immediate surroundings, but in the context of a certain range. Ultimately, this aids AdaGrad in making better and more "informed" steps towards minima.
+
+While the CustomAdam implementation converged faster in the more complex Bukin function, it speed of convergence lagged behind those of RMSProp and AdaGrad. Empirical evidence suggests some reasons for this - whereas the exponential moving averages (moment estimates) used in Adam prevent against excessive stepsize decay by weighting new gradients higher than previous one, it is often **rare in practice that these new gradients are large enough to provide meaningful signals - and in cases that they do, exponential decay makes it so that they become nearly irrelevant after just a certain number of steps (thus hindering convergence).** This is particularly the case with **nonconvex optimization problems**, such as the aforementioned Easom function - and explains how **AdaGrad (which has no decay) was able to converge, whereas decay-based optimization methods such as the CustomAdam implementation and RMSProp both failed to converge.** Further empirical evidence has also shown that **Adam and adaptive gradient descent techniques can, in high-parameter models, generalize *worse on average than simply using SGD!***
+
+(Here are the papers describing these effects: https://openreview.net/forum?id=ryQu7f-RZ, http://www.cs.toronto.edu/~sajadn/sajad_norouzi/ECE1505.pdf)
+
+All in all, there is certainly tremendous room for further growth and exploration in the performance of these optimizers - in fact, several new optimizers have arisen in recent years to address the aforementioned problems. 
+
+🪜**Next steps involve:**
+ - Testing on higher dimensional functions to determine if the theoretical memory benefits of Adam hold up, 
+ - Attempting to solve the above problems by creating a new optimizer from scratch, and 
+ - Testing said functions on more non-convex functions.
 
 ### 🔑 Key Learnings.
+
+1. 🏛️**The inner workings of optimizers and statistics fundamentals, from both a theoretical and practical perspective.** Reading through the original Adam paper, taking notes, and re-implementing the optimizer combined gave me a stronger intuition about the nature of optimization functions and the mathematics behind parameter tuning than any one of those things could have taught me individually. The theoretical aspect aided in solidifying why it was that Adam actually worked (key proofs and formulas that explained common real-world occurrences), whereas the practical aspect better acquainted me with how libraries such as PyTorch work in the backend (leaf tensors and views) and **important practical considerations when converting a theoretical optimizer into raw flesh and blood.**
+
+2. 📊**Why certain optimizers converge better than others.** As mentioned in the results section, simple things such as exponential decay can drastically influence the ability of optimization methods to converge; and allow more simple optimizers to sometimes perform better than adaptive methods. On the other hand, these same simple optimizers (SGD without momentum in particular) have a greater tendency to get stuck in local minima.  As usual, it appears that **the best solution may lie in ensembles of optimizers as opposed to relying on just one method - combining the pros of each to obtain the best of each world.**
+   
+3. 🧪 **Best practices in terms of validating optimization methods** - or, the importance of using non-convex and local-minima-riddled functions to test optimizers. These types of functions often highlight discrepancies and major faults/weaknesses between various methods and can help open the floor for further analysis (as was the case under the results section).
+
+All things considered, this project 10x-ed my understanding of the mathematics behind machine learning and revealed interesting problems in terms of both tuning hyperparameters and optimizing parameters on high-dimensional functions. Excited to see what comes next!
+
+*Special thanks to Diederik P. Kingma and Jimmy Lei Ba for writing the original paper! Very fascinating read and was a blast to replicate.*
