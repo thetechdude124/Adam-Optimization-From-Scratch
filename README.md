@@ -58,13 +58,13 @@ By using these moment estimates, Adam is able to circumvent the high compute and
 8. **Update the parameters:** $θ_t=θ_{t-1} - \frac{α}{√(v^Δ_t)+ε} * m^Δ_t$. Let's break this down:
     - $α$ represents the stepsize. This, along with $\frac{a(1-B_1)}{√(1-B_2)}$, serve as the upper bound for the effective step that the optimizer can take. For more depth on this, checkout the "Information about the algorithm" section in my Notion link above, or the original paper.
 
-    - $m_t^{Δ}$ represents the first moment bias-corrected moment estimate computed in step 7.
+    - $m_t^Δ$ represents the first moment bias-corrected moment estimate computed in step 7.
 
-    - $v_t^{Δ}$ represents the second uncentered bias-corrected moment estimate computed in step 6.
+    - $v_t^Δ$ represents the second uncentered bias-corrected moment estimate computed in step 6.
 
     - $ε$ is an arbitrary constant (usually 10e-8) added in the denominator to avoid division by zero. We'll be ignoring this in the next analyses, as its extremely small size makes it effectively irrelevant when taking a step.
 
-    Why are we multiplying $α$ with $\frac{m^Δ_t}{√(v^Δ_t)}$? Note that the latter is, roughly speaking, the first moment divided by the second moment - the mean divided by the mean distance from the origin. Furthermore, $v^Δ$ yields the AVERAGE SQUARED DISTANCE from the origin (it would yield avg. sq. distance from the mean if the moment was centered), and thus the square root is needed to yield the raw avg. sq. distance from the origin.
+    Why are we multiplying $ α $ with $\frac{m^Δ_t}{√(v^Δ_t)}$ ? Note that the latter is, roughly speaking, the first moment divided by the second moment - the mean divided by the mean distance from the origin. Furthermore, $v^Δ$ yields the AVERAGE SQUARED DISTANCE from the origin (it would yield avg. sq. distance from the mean if the moment was centered), and thus the square root is needed to yield the raw avg. sq. distance from the origin.
 
     **In the paper, this expression** ($\frac{m^Δ_t}{√(v^Δ_t)}$) **is known as the *signal to noise ratio*.** The idea is that we want to REDUCE the stepsize if we are more unsure of what the ideal step would be - meaning that that the value of the factor that we multiply the stepsize with should be *closer to zero/have a larger denominator* if there is more *variability* across the gradient estimates. More specifically, **if the gradients have more spread w.r.t the origin despite the mean being SMALL (0), then this indicates that there is high degree of uncertainty** - and, as the mean and the spread w.r.t the origin are both the first moment and the second uncentered moment respectively, the SNR will be a much smaller value as the denominator grows larger than the numerator. If both are high, then this means there is a strong signal for an update in a certain direction (**meaning that the SNR should be closer to one and thus allow for a step of the full stepsize**). 
 
@@ -76,7 +76,7 @@ Here's a full picture of all of these steps summarized (as presented in the pape
 
 ### **🧪 Method and About This Experiment.**
 
-There are two key components to this repository - the custom implementation of the Adam Optimizer can be found in `CustomAdam.py`, whereas the experimentation process with all other optimizers occurs under Optimizer_Experimentation.ipynb. **Each optimizer is ran for 60k steps for each function** (replicating one full pass through of the MNIST-dataset as performed in the Adam paper).
+There are two key components to this repository - the custom implementation of the Adam Optimizer can be found in `CustomAdam.py`, whereas the experimentation process with all other optimizers occurs under Optimizer_Experimentation.ipynb. **Each optimizer is ran for 60k steps for each function(replicating one full pass through of the MNIST-dataset as performed in the Adam paper).**
 
 The experiment setup was made in an effort to determine the performance of the custom Adam implementation against the more commonly used methods. Specifically, the experiment runs CustomAdam, SGD, RMSProp, and AdaGrad on 6 3-Dimensional functions (with each using the same weight initializations between ±1), each of which pose unique challenges.
 
