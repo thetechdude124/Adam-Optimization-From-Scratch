@@ -30,7 +30,7 @@ How does Adam fix this? *By using first and second moment ESTIMATES to update pa
 
 - **Second Moment (UNCENTERED AND CENTERED):** The second moment is the same as the first moment, except for the fact that **every $x$ term is SQUARED.** So, the actual formula for a moment is $m_n=E[X^n]$, where $n$ refers to the given moment (first, second, etc.). The **second CENTERED MOMENT is the variance, whereas the second UNCENTERED moment is the uncentered variance or SQUARED DISTANCE FROM THE ORIGIN.** 
 
-*P.S. - while there isn't enough room here to give full proofs of all of this, I've broken down the math for myself as I was learning it all in one spot https://crysta.notion.site/ADAM-A-METHOD-FOR-STOCHASTIC-OPTIMIZATION-758a789b929842d4ac01281e4366f9f5; check it out and scroll to the "Key Terms" section for a more detailed set of definitions*.)
+*P.S. - while there isn't enough room here to give full proofs of all these equations. I've broken down the math for myself as I was learning it all in one spot https://crysta.notion.site/ADAM-A-METHOD-FOR-STOCHASTIC-OPTIMIZATION-758a789b929842d4ac01281e4366f9f5; check it out and scroll to the "Key Terms" section for a more detailed set of definitions*.)
 
 By using these moment estimates, Adam is able to circumvent the high compute and training time for traditional optimization methods on high dimension problems. 
 
@@ -80,7 +80,7 @@ There are two key components to this repository - the custom implementation of t
 
 The experiment setup was made in an effort to determine the performance of the custom Adam implementation against the more commonly used methods. Specifically, the experiment runs CustomAdam, SGD, RMSProp, and AdaGrad on 6 3-Dimensional functions (with each using the same weight initializations between ±1), each of which pose unique challenges.
 
-Here are the six functions used in this experiment, along with a diagram and key challenges. (diagram made in PowerPoint, source for these images and equations https://www.sfu.ca/~ssurjano/optimization.html)
+Here are the six functions used in this experiment, along with a diagram and key challenges (diagram made in PowerPoint, function diagrams and equations can be found at https://www.sfu.ca/~ssurjano/optimization.html):
 
 <p align = "center"><img src = "./images/LOSS_FUNCTIONS_DIAGRAM.jpg"></img></p>
 
